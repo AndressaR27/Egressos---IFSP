@@ -70,6 +70,7 @@
 
     .form-group {
       margin-bottom: 15px;
+      position: relative;
     }
 
     label {
@@ -85,12 +86,32 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
+      transition: border-color 0.2s ease;
     }
 
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--ifsp-green);
       box-shadow: 0 0 5px rgba(0, 102, 51, 0.3);
+    }
+
+    /* Estilos para estado de erro */
+    .form-group.error input,
+    .form-group.error select,
+    .form-group.error textarea {
+      border-color: var(--ifsp-red);
+      background-color: #fff8f8;
+    }
+
+    .error-message {
+      color: var(--ifsp-red);
+      font-size: 0.8rem;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-group.error .error-message {
+      display: block;
     }
 
     .btn-submit {
@@ -120,8 +141,7 @@
       <p>Mantenha seus dados atualizados e fortaleça a rede de ex-alunos do IFSP.</p>
     </header>
 
-    <!-- Altere o action para o endpoint do seu backend ou serviço de formulário -->
-    <form action="https://formspree.io/f/seu_form_id" method="POST">
+    <form id="formEgresso" action="https://formspree.io/f/seu_form_id" method="POST" novalidate>
       
       <!-- Dados Pessoais -->
       <fieldset>
@@ -130,16 +150,19 @@
         <div class="form-group">
           <label for="nome">Nome Completo *</label>
           <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo">
+          <span class="error-message">Por favor, informe seu nome completo.</span>
         </div>
 
         <div class="form-group">
           <label for="email">E-mail de Contato *</label>
           <input type="email" id="email" name="email" required placeholder="exemplo@email.com">
+          <span class="error-message">Por favor, informe um e-mail válido.</span>
         </div>
 
         <div class="form-group">
           <label for="telefone">Telefone / WhatsApp *</label>
-          <input type="tel" id="telefone" name="telefone" required placeholder="(15) 99999-9999">
+          <input type="tel" id="telefone" name="telefone" required maxlength="15" placeholder="(15) 99999-9999">
+          <span class="error-message">Informe um número de telefone válido com DDD (mínimo 10 dígitos).</span>
         </div>
       </fieldset>
 
@@ -158,11 +181,13 @@
             <option value="Licenciatura em Matemática">Licenciatura em Matemática</option>
             <option value="Outro">Outro</option>
           </select>
+          <span class="error-message">Selecione o curso concluído no IFSP.</span>
         </div>
 
         <div class="form-group">
           <label for="ano_conclusao">Ano de Conclusão *</label>
           <input type="number" id="ano_conclusao" name="ano_conclusao" min="2010" max="2026" required placeholder="Ex: 2023">
+          <span class="error-message">Informe um ano de conclusão válido (ex: entre 2010 e 2026).</span>
         </div>
       </fieldset>
 
@@ -180,6 +205,7 @@
             <option value="Estudando (Especialização/Mestrado/Outro)">Continuando os estudos</option>
             <option value="Buscando oportunidade">Em busca de recolocação no mercado</option>
           </select>
+          <span class="error-message">Selecione sua situação profissional atual.</span>
         </div>
 
         <div class="form-group">
@@ -196,6 +222,98 @@
       <button type="submit" class="btn-submit">Enviar Cadastro</button>
     </form>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('formEgresso');
+      const telefoneInput = document.getElementById('telefone');
+
+      // --- 1. MÁSCARA DINÂMICA DE TELEFONE ---
+      telefoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+        
+        if (value.length > 11) {
+          value = value.slice(0, 11);
+        }
+
+        // Aplica a formatação conforme a quantidade de dígitos (DDD + 8 ou 9 dígitos)
+        if (value.length > 10) {
+          // Formato celular: (XX) XXXXX-XXXX
+          value = value.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        } else if (value.length > 6) {
+          // Formato intermediário ou fixo: (XX) XXXX-XXXX
+          value = value.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+        } else if (value.length > 2) {
+          value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+        } else if (value.length > 0) {
+          value = value.replace(/^(\d*)/, '($1');
+        }
+
+        e.target.value = value;
+      });
+
+      // --- 2. VALIDAÇÃO DE CAMPOS AO SUBMETER ---
+      form.addEventListener('submit', (event) => {
+        let isValid = true;
+        const inputs = form.querySelectorAll('input[required], select[required]');
+
+        inputs.forEach((input) => {
+          const formGroup = input.closest('.form-group');
+          let fieldValid = true;
+
+          // Validação básica de campo vazio
+          if (!input.value.trim()) {
+            fieldValid = false;
+          }
+
+          // Validação específica para E-mail
+          if (input.type === 'email' && input.value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(input.value)) {
+              fieldValid = false;
+            }
+          }
+
+          // Validação específica para Telefone (mínimo de 10 números limpos)
+          if (input.id === 'telefone' && input.value) {
+            const rawNumbers = input.value.replace(/\D/g, '');
+            if (rawNumbers.length < 10) {
+              fieldValid = false;
+            }
+          }
+
+          // Exibe ou oculta erros visuais
+          if (!fieldValid) {
+            formGroup.classList.add('error');
+            isValid = false;
+          } else {
+            formGroup.classList.remove('error');
+          }
+        });
+
+        if (!isValid) {
+          event.preventDefault(); // Impede o envio se houver erro
+          
+          // Rola suavemente até o primeiro campo com erro
+          const firstError = form.querySelector('.form-group.error input, .form-group.error select');
+          if (firstError) {
+            firstError.focus();
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      });
+
+      // Remapeia o erro em tempo real quando o usuário começa a corrigir o campo
+      form.querySelectorAll('input, select').forEach((field) => {
+        field.addEventListener('input', () => {
+          const formGroup = field.closest('.form-group');
+          if (formGroup && formGroup.classList.contains('error')) {
+            formGroup.classList.remove('error');
+          }
+        });
+      });
+    });
+  </script>
 
 </body>
 </html>
