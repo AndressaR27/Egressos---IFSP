@@ -1,0 +1,125 @@
+:root {
+  --ifsp-green: #006633;
+  --ifsp-red: #cc0000;
+  --bg-color: #f4f6f8;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-top: 6px solid var(--ifsp-green);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+header h1 {
+  color: var(--ifsp-green);
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+fieldset {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+legend {
+  font-weight: bold;
+  color: var(--ifsp-green);
+  padding: 0 8px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--ifsp-green);
+  box-shadow: 0 0 5px rgba(0, 102, 51, 0.3);
+}
+
+/* Estilos de Validação de Erro */
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+  border-color: var(--ifsp-red);
+  background-color: #fff8f8;
+}
+
+.error-message {
+  color: var(--ifsp-red);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: none;
+}
+
+.form-group.error .error-message {
+  display: block;
+}
+
+.btn-submit {
+  background-color: var(--ifsp-green);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #004d26;
+}
